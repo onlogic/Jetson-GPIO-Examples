@@ -18,5 +18,5 @@ Let's first take a brief look at the GPIO pins available. Each Jetson system has
 
 All python examples will use pin 1 for consistentcy.
 
-##Getting Started with command line
+## Getting Started with command line
 TO-DO: Test on older system to see what happens without anything installed for both CLI and python code
