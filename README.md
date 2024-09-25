@@ -1,20 +1,20 @@
 # Utilizing GPIO for Aetina Jetson systems
 
-This guide will walk you through utilizing GPIO pins on the 15-pin header located on the rear of your Jetson device with the [libgpiod C library](https://github.com/brgl/libgpiod), specifically the command line interface and simple Python sample code to demonstrate key concepts. This demo was created using an Orin NX running Jetpack 6.0 [L4T 36.3].
+This guide will walk you through utilizing GPIO pins on the 15-pin header located on the rear of your Jetson device with the [libgpiod C library](https://github.com/brgl/libgpiod), specifically the command line interface and official python binding to demonstrate key concepts. This demo was created using an Orin NX running Jetpack 6.0 [L4T 36.3].
 > [!WARNING]
-> Any Python Code in this repository is purely for demonstration and testing purposes. Please ensure to visit the libgpiod repository for more info on [python-based bindings](https://github.com/brgl/libgpiod/tree/master/bindings/python).
+> Any Python Code in this repository is purely for demonstration and testing purposes. Please ensure to visit the libgpiod repository for more info on [python-based bindings](https://github.com/brgl/libgpiod/tree/master/bindings/python). DO NOT USE FOR SAFETY CRITICAL APPLICATIONS.
 
 ## What is libgpiod? <br/>
 libgpiod is a C library designed to interact with linux GPIO devices. Since linux 4.8, the sysfs interface has been depricated and it is recommended to use charcter devices instead. This demo will walk through some basic demos to show functionality interacting with the GPIO.
 
 ## Basic Installation Steps <br/>
-The old version of gpiod(v1.5.4) was depricated and the below sample code has been based on the current release. You will need at least v2.0.2. Depending on your installed version of Jetpack, you likely have a depricated version of libgpiod installed for system functions. We want to make sure the user calls upon a recent version:
+The old version of gpiod(v1.5.4) was depricated and the below sample code has been based on the currently supported release, You will need at least v2.0.2. Depending on your installed version of Jetpack, you likely have a depricated version of libgpiod installed for system functions. We want to make sure the user calls upon a recent version:
 - Open a terminal session
 - First we should ensure are system is up to date ``` sudo apt-get upgrade ```
 - libgpiod depends on ``` python3-dev``` , this should already been installed, but just in case we can run ```sudo apt install python3-dev```
 - Next we can install gpiod. ```pip install gpiod```.
   - Ensure this installs a version later than 2.0.2.
-  - If you see 1.5.4 being installed, you can run ```pip uninstall gpiod``` and then ```pip install gpiod==2.0.2``` to check if you can install a recent version.
+  - If you see 1.5.4 being installed, you can run ```pip uninstall gpiod``` and then ```pip install gpiod==``` to check if you can install a recent version.
   - If you encounter an error that the package is not available, You should upgrade your Jetson to a newer version of Jetpack before continuing. Reference our [Jetpack 6 upgrade guide](https://github.com/onlogic/Updating-to-Jetpack-6-for-Aetina-Jetson.git) for more information.
 
 ## Jetson GPIO Pin Basics <br/>
@@ -41,19 +41,19 @@ Before we dive into samples, let's take a brief look at the GPIO pins available.
 | 4 | GPIO27 | PN.01 |
 | 5 | GPIO35 | PH.00 |
 
-We will use NX GPIO 1 for the following examples. We can call upon these pins to set an output (High/Active = 3.3V) (Low/Inactive = 0V) or set as an input. For a full list of features vist the python binding examples as part of the lipgpiod library.
+We will use NX GPIO01 for the following examples. We can call upon these pins to set an output (High/Active = 3.3V) (Low/Inactive = 0V) or set as an input.
 
 ## Libgpiod Command Line
 Even though we have the line numbers above. You can easily identify relevant lines with the included CLI. To interface with GPIO pins we need to know the chip it is on and then the line (We can use either the GPIO Name (ex. PQ.05) or the chip line (105) in most cases). <br/>
-``` gpioinfo``` will allow us to list all of the chips and their lines. Let's find the info we need for GPIO01. Here we can see that gpiochip0 contains our address. <br/>
+``` gpioinfo ``` will allow us to list all of the chips and their lines. Let's find the info we need for GPIO01. Here we can see that gpiochip0 contains our address. <br/>
 ![gpioinfo cli](/assets/gpioinfo1.png) <br/>
-Scrolling down to PQ.05 shows us that gpiochip0 shows us that are line is 105. <br/>
+Scrolling down to PQ.05 shows us that corresponding line for chip gpiochip0 is 105. <br/>
 ![gpioinfo cli](/assets/gpioinfo2.png) <br/>
 
 There are additional cli commmands avaiable such as ```gpioget``` and ```gpioset``` for temporarily reading and setting values. ```gpiomon``` which waits for edge events and ```gpionofity``` which waits for state changes. More info on usage can be found on the libgpiod readme.
 
 ## Libgpiod Python Sample Code
-Let's breakdown a simple output script from the libgpiod sample code.
+Let's breakdown a simple output script, based on official examples.
 ```python
 import gpiod
 import time
@@ -79,7 +79,7 @@ with gpiod.request_lines(
         time.sleep(10)
         print("Complete")
 ```
-An important note about gpiod, if quit forcefully it may cause the pin to hang in the last known state. If you try to immediately run code against the same pin from the same terminal window after force quiting you will recieve an error "IOError: [Errno 16] Device or resource busy". With v2.0.2+ releasing the pin is as simple as opening up a new terminal window. Always design a way for your code to exit gracefully if using GPIO pins.
+An important note about gpiod, quitting forcefully will cause the pin to hang in the last known state. If you try to immediately run code against the same pin from the same terminal window after force quiting you will recieve an error "IOError: [Errno 16] Device or resource busy". With v2.0.2+ releasing the pin is as simple as opening up a new terminal window. Always design a way for your code to exit gracefully if using GPIO pins.
 
 ```python
 # First we are importing the necessary packages
@@ -126,7 +126,7 @@ with gpiod.request_lines(
         time.sleep(10)
         print("Complete")
 ```
-Using a multimeter, we can check that the code is workign correctly
+Using a multimeter, we can check that the code is working correctly. During active we should see 3.3V, whereas during inactive we should see 0V.
 Now you see how we can how we can create a basic output example, let's look at some other requests. If we wanted to reconfigure the direction of a line from an output to an input, we could do so with the following:
 
 ```python
@@ -137,7 +137,7 @@ request.reconfigure_lines(
             }
         )
 ```
-If we wanted to then read the value of the input we could call
+If we wanted to then read the value of the input we could call:
 
 ```python
 as request:
