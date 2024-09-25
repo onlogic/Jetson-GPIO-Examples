@@ -2,7 +2,7 @@
 
 This guide will walk you through utilizing GPIO pins on the 15-pin header located on the rear of your Jetson device with the [libgpiod C library](https://github.com/brgl/libgpiod), specifically the command line interface and simple Python sample code to demonstrate key concepts. This demo was created using an Orin NX running Jetpack 6.0 [L4T 36.3].
 > [!WARNING]
-> Any Python Code in this repository is purely for demonstration and testing purposes, and is not for production purposes. Please ensure to visit the libgpiod repository for more info on [python-based bindings](https://github.com/brgl/libgpiod/tree/master/bindings/python).
+> Any Python Code in this repository is purely for demonstration and testing purposes. Please ensure to visit the libgpiod repository for more info on [python-based bindings](https://github.com/brgl/libgpiod/tree/master/bindings/python).
 
 ## What is libgpiod? <br/>
 libgpiod is a C library designed to interact with linux GPIO devices. Since linux 4.8, the sysfs interface has been depricated and it is recommended to use charcter devices instead. This demo will walk through some basic demos to show functionality interacting with the GPIO.
@@ -53,7 +53,7 @@ Scrolling down to PQ.05 shows us that gpiochip0 shows us that are line is 105. <
 There are additional cli commmands avaiable such as ```gpioget``` and ```gpioset``` for temporarily reading and setting values. ```gpiomon``` which waits for edge events and ```gpionofity``` which waits for state changes. More info on usage can be found on the libgpiod readme.
 
 ## Libgpiod Python Sample Code
-Let's breakdown a simple code example from the libgpiod sample code.
+Let's breakdown a simple output script from the libgpiod sample code.
 ```python
 import gpiod
 import time
@@ -116,17 +116,35 @@ with gpiod.request_lines(
 # Now we can call our request
 ) as request: 
     while True:
-        #We are calling request to set the value, of LINE 105, and set the Value to High (Which matches the inital state)
+        #We are calling request to set the value, of LINE 105, and set the Value to High
         request.set_value(LINE, Value.ACTIVE)
         print("Active")
         time.sleep(10)
-        #Here we are doing the same call as above, but this 
+        #Here we are doing the same call as above, but this time we are setting teh Value to Low
         request.set_value(LINE, Value.INACTIVE)
         print("Inactive")
         time.sleep(10)
         print("Complete")
 ```
+Using a multimeter, we can check that the code is workign correctly
+Now you see how we can how we can create a basic output example, let's look at some other requests. If we wanted to reconfigure the direction of a line from an output to an input, we could do so with the following:
 
+```python
+request.reconfigure_lines(
+            config={line_offset: gpiod.LineSettings(
+                    direction=Direction.INPUT
+                )
+            }
+        )
+```
+If we wanted to then read the value of the input we could call
+
+```python
+as request:
+        value = request.get_value(LINE)
+        print("{}={}".format(LINE, value))
+```
+These are just a few examples of what's possible with libgpiod. For further examples, check out the official [libgpiod examples repository](https://github.com/brgl/libgpiod/tree/master/bindings/python/examples).
 
 
 
