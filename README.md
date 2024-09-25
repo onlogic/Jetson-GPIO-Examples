@@ -12,7 +12,7 @@ The old version of gpiod(v1.5.4) was depricated and the below sample code has be
 - Open a terminal session
 - First we should ensure are system is up to date ``` sudo apt-get upgrade ```
 - libgpiod depends on ``` python3-dev``` , this should already been installed, but just in case we can run ```sudo apt install python3-dev```
-- Next we can install gpiod. ```pip install gpiod```.
+- Next we can install gpiod. ```pip install gpiod```. Running ```pip list --user``` should show the package.
   - Ensure this installs a version later than 2.0.2.
   - If you see 1.5.4 being installed, you can run ```pip uninstall gpiod``` and then ```pip install gpiod==``` to check if you can install a recent version.
   - If you encounter an error that the package is not available, You should upgrade your Jetson to a newer version of Jetpack before continuing. Reference our [Jetpack 6 upgrade guide](https://github.com/onlogic/Updating-to-Jetpack-6-for-Aetina-Jetson.git) for more information.
