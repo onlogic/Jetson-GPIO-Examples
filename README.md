@@ -14,8 +14,8 @@ The old version of gpiod(v1.5.4) was depricated and the below sample code has be
 - libgpiod depends on ``` python3-dev``` , this should already been installed, but just in case we can run ```sudo apt install python3-dev```
 - Next we can install gpiod. ```pip install gpiod```.
   - Ensure this installs a version later than 2.0.2.
-  - If you see 1.5.4 being installed, you can run ```pip uninstall gpiod``` and then ```pip install gpiod==2.0.2``` .
-  - If you encounter an error that a version of the package is not available, You should upgrade your Jetson to a newer version of Jetpack before continuing. Reference our [Jetpack 6 upgrade guide](https://github.com/onlogic/Updating-to-Jetpack-6-for-Aetina-Jetson.git) for more information.
+  - If you see 1.5.4 being installed, you can run ```pip uninstall gpiod``` and then ```pip install gpiod==2.0.2``` to check if you can install a recent version.
+  - If you encounter an error that the package is not available, You should upgrade your Jetson to a newer version of Jetpack before continuing. Reference our [Jetpack 6 upgrade guide](https://github.com/onlogic/Updating-to-Jetpack-6-for-Aetina-Jetson.git) for more information.
 
 ## Jetson GPIO Pin Basics <br/>
 
@@ -52,8 +52,80 @@ Scrolling down to PQ.05 shows us that gpiochip0 shows us that are line is 105. <
 
 There are additional cli commmands avaiable such as ```gpioget``` and ```gpioset``` for temporarily reading and setting values. ```gpiomon``` which waits for edge events and ```gpionofity``` which waits for state changes. More info on usage can be found on the libgpiod readme.
 
-## Libgpiod Sample Code
+## Libgpiod Python Sample Code
+Let's breakdown a simple code example from the libgpiod sample code.
+```python
+import gpiod
+import time
+from gpiod.line import Direction, Value
 
+LINE = 105
+
+with gpiod.request_lines(
+    "/dev/gpiochip0",
+    consumer="basic-demo",
+    config={
+        LINE: gpiod.LineSettings(
+            direction=Direction.OUTPUT, output_value=Value.ACTIVE
+        )
+    },
+) as request:
+    while True:
+        request.set_value(LINE, Value.ACTIVE)
+        print("Active")
+        time.sleep(10)
+        request.set_value(LINE, Value.INACTIVE)
+        print("Inactive")
+        time.sleep(10)
+        print("Complete")
+```
+An important note about gpiod, if quit forcefully it may cause the pin to hang in the last known state. If you try to immediately run code against the same pin from the same terminal window after force quiting you will recieve an error "IOError: [Errno 16] Device or resource busy". With v2.0.2+ releasing the pin is as simple as opening up a new terminal window. Always design a way for your code to exit gracefully if using GPIO pins.
+
+```python
+# First we are importing the necessary packages
+import gpiod 
+import time
+
+# In this example we will use:
+# Direction, which means is it an input or an output
+# Value which is the high or low state for output pins.
+from gpiod.line import Direction, Value
+
+#Here we will set a global variable for the line we want to use.
+LINE = 105
+```
+<br/>
+
+```python
+# Here we are defining our request for the line.
+# We first define the target chip, remember line 105 is contained in gpiochip0
+# Creating a GPIO virtual device (consumer) to request the GPIO
+# The creating a configuration for what we want are line to do. setting the direction as output and the initial value as Active (High)
+with gpiod.request_lines(
+    "/dev/gpiochip0",
+    consumer="basic-demo",
+    config={
+        LINE: gpiod.LineSettings(
+            direction=Direction.OUTPUT, output_value=Value.ACTIVE
+        )
+    },
+```
+<br/>
+
+```python
+# Now we can call our request
+) as request: 
+    while True:
+        #We are calling request to set the value, of LINE 105, and set the Value to High (Which matches the inital state)
+        request.set_value(LINE, Value.ACTIVE)
+        print("Active")
+        time.sleep(10)
+        #Here we are doing the same call as above, but this 
+        request.set_value(LINE, Value.INACTIVE)
+        print("Inactive")
+        time.sleep(10)
+        print("Complete")
+```
 
 
 
