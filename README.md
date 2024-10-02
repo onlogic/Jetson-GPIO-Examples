@@ -44,7 +44,7 @@ Before we dive into samples, let's take a brief look at the GPIO pins available.
 We will use NX GPIO01 for the following examples. We can call upon these pins to set an output (High/Active = 3.3V) (Low/Inactive = 0V) or set as an input.
 
 ## Libgpiod Command Line
-Even though we have the line numbers above. You can easily identify relevant lines with the included CLI. To interface with GPIO pins we need to know the chip it is on and then the line (We can use either the GPIO Name (ex. PQ.05) or the chip line (105) in most cases). <br/>
+Even though we have the line numbers above. You can easily identify relevant lines with the included CLI. To interface with GPIO pins we need to know the chip it is on and then the line (We can use either the GPIO Name (ex. PQ.05) or the chip line (105) in most cases). Note: This requires the depricated version of the package. You can install it with sudo apt-get gpiod. Ensure your applications are calling on the user installed 2.0+ version or the below code examples will not work. <br/>
 ``` gpioinfo ``` will allow us to list all of the chips and their lines. Let's find the info we need for GPIO01. Here we can see that gpiochip0 contains our address. <br/>
 ![gpioinfo cli](/assets/gpioinfo1.png) <br/>
 Scrolling down to PQ.05 shows us that corresponding line for chip gpiochip0 is 105. <br/>
