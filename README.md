@@ -5,7 +5,7 @@ This guide will walk you through utilizing GPIO pins on the 15-pin header locate
 > Any Python Code in this repository is purely for demonstration and testing purposes. Please ensure to visit the libgpiod repository for more info on [python-based bindings](https://github.com/brgl/libgpiod/tree/master/bindings/python). DO NOT USE FOR SAFETY CRITICAL APPLICATIONS.
 
 ## What is libgpiod? <br/>
-libgpiod is a C library designed to interact with linux GPIO devices. Since linux 4.8, the sysfs interface has been depricated and it is recommended to use charcter devices instead. This demo will walk through some basic demos to show functionality interacting with the GPIO.
+libgpiod is a C library designed to interact with linux GPIO devices. Since linux 4.8, the sysfs interface has been depricated and it is recommended to use charcter devices instead. This also means that the CLI tool shown below was also depricated. This demo will walk through some basic demos to show functionality interacting with the GPIO.
 
 ## Basic Installation Steps <br/>
 The old version of gpiod(v1.5.4) was depricated and the below sample code has been based on the currently supported release, You will need at least v2.0.2. Depending on your installed version of Jetpack, you likely have a depricated version of libgpiod installed for system functions. We want to make sure the user calls upon a recent version:
@@ -43,8 +43,22 @@ Before we dive into samples, let's take a brief look at the GPIO pins available.
 
 We will use NX GPIO01 for the following examples. We can call upon these pins to set an output (High/Active = 3.3V) (Low/Inactive = 0V) or set as an input.
 
-## Libgpiod Command Line
-Even though we have the line numbers above. You can easily identify relevant lines with the included CLI. To interface with GPIO pins we need to know the chip it is on and then the line (We can use either the GPIO Name (ex. PQ.05) or the chip line (105) in most cases). Note: This requires the depricated version of the package. You can install it with sudo apt-get gpiod. Ensure your applications are calling on the user installed 2.0+ version or the below code examples will not work. <br/>
+## Libgpiod Identifying Pins - Python (Current)
+Since we can no longer user the CLI tool to gather information on our pins. We should run the following if we want to use lines or identify chips.
+```python
+import gpiod
+
+with gpiod.Chip("/dev/gpiochip0") as chip:
+    info = chip.get_info()
+    print(f"{info.name} [{info.label}] ({info.num_lines} lines)")
+```
+This assumes you already know which chip the GPIO is on. If you'd like to check if a chip exists you can use the following, replacing x with the chip you'd like to identify.
+```python
+gpiod.is_gpiochip_device("/dev/gpiochipX")
+```
+
+## Libgpiod Identifying Pins - Command Line (Depricated)
+To interface with GPIO pins we need to know the chip it is on and then the line (We can use either the GPIO Name (ex. PQ.05) or the chip line (105) in most cases). Reminder: This requires the depricated version of the package. You can install it with ```python sudo apt-get install gpiod```. Ensure your applications are calling on the user installed 2.0+ version or the below code examples will not work. <br/>
 ``` gpioinfo ``` will allow us to list all of the chips and their lines. Let's find the info we need for GPIO01. Here we can see that gpiochip0 contains our address. <br/>
 ![gpioinfo cli](/assets/gpioinfo1.png) <br/>
 Scrolling down to PQ.05 shows us that corresponding line for chip gpiochip0 is 105. <br/>
@@ -52,8 +66,9 @@ Scrolling down to PQ.05 shows us that corresponding line for chip gpiochip0 is 1
 
 There are additional cli commmands avaiable such as ```gpioget``` and ```gpioset``` for temporarily reading and setting values. ```gpiomon``` which waits for edge events and ```gpionofity``` which waits for state changes. More info on usage can be found on the libgpiod readme.
 
+
 ## Libgpiod Python Sample Code
-Let's breakdown a simple output script, based on official examples.
+Let's breakdown a simple output script, based on official examples. The following uses line #, but remember we can also use the name shown above.
 ```python
 import gpiod
 import time
